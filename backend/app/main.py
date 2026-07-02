@@ -1,26 +1,48 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.routes import router
 
 app = FastAPI(
-    title="Sentinel Edge Backend",
-    description="Production-ready API for Sentinel Edge monitoring",
+    title="Sentinel Edge API",
     version="1.0.0"
 )
 
-# Enable CORS for frontend running on localhost:3000
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+@app.get("/")
+def root():
+    return {
+        "message": "Sentinel Edge Backend Running"
+    }
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
-# Register routes with /api prefix
-app.include_router(router, prefix="/api")
+@app.get("/health")
+def health():
+    return {
+        "status": "online"
+    }
+
+
+@app.get("/api/status")
+def status():
+    return {
+        "temperature": 24,
+        "humidity": 45,
+        "security": "Secure",
+        "wifi": "Excellent",
+        "device": "Online"
+    }
+
+
+@app.get("/api/events")
+def events():
+    return [
+        {
+            "event": "Motion detected",
+            "time": "2 min ago"
+        },
+        {
+            "event": "WiFi reconnected",
+            "time": "8 min ago"
+        },
+        {
+            "event": "Temperature stable",
+            "time": "15 min ago"
+        }
+    ]
