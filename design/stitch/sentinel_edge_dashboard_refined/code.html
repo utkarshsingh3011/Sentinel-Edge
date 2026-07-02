@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard - Sentinel Edge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#461f00",
+                        "on-error": "#690005",
+                        "surface-container-low": "#1a1c20",
+                        "surface-variant": "#333539",
+                        "tertiary": "#ffb786",
+                        "primary-container": "#4d8eff",
+                        "on-primary": "#002e6a",
+                        "primary-fixed-dim": "#adc6ff",
+                        "secondary-fixed": "#e1e0ff",
+                        "on-background": "#e2e2e8",
+                        "on-primary-fixed": "#001a42",
+                        "surface-container-high": "#282a2e",
+                        "on-secondary": "#1000a9",
+                        "surface-tint": "#adc6ff",
+                        "background": "#111317",
+                        "on-surface-variant": "#c2c6d6",
+                        "tertiary-fixed-dim": "#ffb786",
+                        "primary-fixed": "#d8e2ff",
+                        "on-primary-fixed-variant": "#004395",
+                        "error-container": "#93000a",
+                        "on-secondary-container": "#b0b2ff",
+                        "on-tertiary-fixed-variant": "#723600",
+                        "tertiary-container": "#df7412",
+                        "surface-container": "#1e2024",
+                        "primary": "#adc6ff",
+                        "outline": "#8c909f",
+                        "surface-container-highest": "#333539",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "tertiary-fixed": "#ffdcc6",
+                        "surface-dim": "#111317",
+                        "on-surface": "#e2e2e8",
+                        "inverse-primary": "#005ac2",
+                        "surface-container-lowest": "#0c0e12",
+                        "on-primary-container": "#00285d",
+                        "secondary-container": "#3131c0",
+                        "on-tertiary-fixed": "#311400",
+                        "on-secondary-fixed": "#07006c",
+                        "secondary": "#c0c1ff",
+                        "on-tertiary": "#502400",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "inverse-on-surface": "#2f3035",
+                        "surface": "#111317",
+                        "surface-bright": "#37393e",
+                        "error": "#ffb4ab",
+                        "outline-variant": "#424754",
+                        "on-error-container": "#ffdad6",
+                        "inverse-surface": "#e2e2e8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "margin-mobile": "16px",
+                        "sm": "8px",
+                        "xl": "48px",
+                        "md": "20px",
+                        "xs": "4px",
+                        "lg": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Geist"],
+                        "label-md": ["Geist"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Geist"],
+                        "headline-lg": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "headline-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0F1115;
+            color: #e2e2e8;
+        }
+        .glass-card {
+            background-color: rgba(28, 32, 38, 0.7);
+            border: 1px solid rgba(45, 51, 59, 0.5);
+            backdrop-filter: blur(12px);
+        }
+        .ambient-glow {
+            box-shadow: 0 0 40px 0 rgba(173, 198, 255, 0.03);
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-dot.healthy {
+            background-color: #4ade80;
+            box-shadow: 0 0 12px rgba(74, 222, 128, 0.6);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex font-body-md">
+<!-- SideNavBar (Preserved Structure) -->
+<nav class="fixed left-0 top-0 h-screen flex flex-col p-md z-40 bg-surface-container-lowest border-r border-outline-variant w-64 hidden md:flex">
+<div class="flex items-center gap-md px-md py-sm mb-lg">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">router</span>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Sentinel</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Edge Monitoring</p>
+</div>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md rounded-lg py-sm px-md mb-lg mx-md flex items-center justify-center gap-sm hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+        Add Device
+    </button>
+<ul class="flex-1 space-y-xs">
+<li>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer bg-secondary-container text-on-secondary-container rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                Overview
+            </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:bg-surface-variant rounded-lg font-label-md text-label-md transition-all" href="#">
+<span class="material-symbols-outlined">router</span>
+                Your Devices
+            </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:bg-surface-variant rounded-lg font-label-md text-label-md transition-all" href="#">
+<span class="material-symbols-outlined">insights</span>
+                Insights
+            </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:bg-surface-variant rounded-lg font-label-md text-label-md transition-all" href="#">
+<span class="material-symbols-outlined">history</span>
+                Event Logs
+            </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:bg-surface-variant rounded-lg font-label-md text-label-md transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+                Team Members
+            </a>
+</li>
+</ul>
+<div class="mt-auto pt-md border-t border-outline-variant space-y-xs">
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:bg-surface-variant rounded-lg font-label-md text-label-md transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+            Get Support
+        </a>
+<a class="flex items-center gap-md px-md py-sm cursor-pointer text-on-surface-variant hover:bg-surface-variant rounded-lg font-label-md text-label-md transition-all" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+            Settings
+        </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 md:ml-64 flex flex-col min-h-screen relative">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-lg h-20 max-w-container-max mx-auto bg-background sticky top-0 z-30">
+<div class="flex items-center gap-sm text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[18px]">home</span>
+<span class="text-outline">/</span>
+<span class="text-on-surface">Home</span>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex items-center gap-sm px-md py-1.5 bg-surface-container rounded-full border border-outline-variant">
+<span class="status-dot healthy"></span>
+<span class="text-label-sm font-label-sm text-on-surface">All systems online</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-sm rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-sm rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<main class="flex-1 p-margin-mobile md:p-xl max-w-container-max mx-auto w-full">
+<!-- Hero Header -->
+<div class="mb-lg">
+<h2 class="font-headline-lg text-headline-lg text-on-background mb-sm">Good morning, Alex</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Everything is running smoothly at your edge locations. Here is what has been happening.</p>
+</div>
+<!-- Today's Summary Story Section -->
+<section class="mb-xl">
+<div class="glass-card rounded-xl p-lg border-primary/20 bg-gradient-to-br from-surface-container-low to-background">
+<div class="flex items-center gap-sm mb-md text-primary">
+<span class="material-symbols-outlined">auto_awesome</span>
+<h3 class="font-label-md uppercase tracking-widest text-primary">Today's Summary</h3>
+</div>
+<p class="font-body-lg text-on-surface leading-relaxed italic">
+                    "Your primary device has been online and stable for <span class="text-primary font-semibold">14 hours</span>. 
+                    Since midnight, we've recorded <span class="text-primary font-semibold">three motion events</span> in the main office, all during expected hours. 
+                    The internal environment remains <span class="text-primary font-semibold">optimal</span>, with a slight 1.2° cooling trend since yesterday morning."
+                </p>
+</div>
+</section>
+<!-- Current Environment Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-xl">
+<!-- Temperature -->
+<div class="glass-card rounded-xl p-lg ambient-glow hover:bg-surface-container-high transition-all group">
+<div class="flex items-center justify-between mb-lg">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Climate</span>
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">thermostat</span>
+</div>
+<div class="mb-md">
+<div class="flex items-baseline gap-xs">
+<span class="font-display-lg text-display-lg text-on-background">24°</span>
+<span class="font-body-lg text-body-lg text-on-surface-variant">C</span>
+</div>
+<p class="font-body-sm text-on-surface-variant mt-1">Comfortable indoor temperature</p>
+</div>
+<div class="flex items-center gap-xs text-[#4ade80] font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">trending_down</span>
+<span>Getting cooler</span>
+</div>
+</div>
+<!-- Humidity -->
+<div class="glass-card rounded-xl p-lg ambient-glow hover:bg-surface-container-high transition-all group">
+<div class="flex items-center justify-between mb-lg">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Air Quality</span>
+<span class="material-symbols-outlined text-[#60a5fa] group-hover:scale-110 transition-transform">water_drop</span>
+</div>
+<div class="mb-md">
+<div class="flex items-baseline gap-xs">
+<span class="font-display-lg text-display-lg text-on-background">45</span>
+<span class="font-body-lg text-body-lg text-on-surface-variant">%</span>
+</div>
+<p class="font-body-sm text-on-surface-variant mt-1">Ideal humidity levels</p>
+</div>
+<div class="flex items-center gap-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Stable environment</span>
+</div>
+</div>
+<!-- Motion -->
+<div class="glass-card rounded-xl p-lg ambient-glow hover:bg-surface-container-high transition-all group">
+<div class="flex items-center justify-between mb-lg">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Security</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:scale-110 transition-transform">person_search</span>
+</div>
+<div class="mb-md">
+<span class="font-headline-lg text-headline-lg text-on-background">Secure</span>
+<p class="font-body-sm text-on-surface-variant mt-1">No unauthorized motion</p>
+</div>
+<div class="flex items-center gap-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">history</span>
+<span>Last event 4h ago</span>
+</div>
+</div>
+<!-- Network -->
+<div class="glass-card rounded-xl p-lg ambient-glow hover:bg-surface-container-high transition-all group">
+<div class="flex items-center justify-between mb-lg">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Connectivity</span>
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">wifi</span>
+</div>
+<div class="mb-md">
+<span class="font-headline-lg text-headline-lg text-on-background">Strong</span>
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden my-md">
+<div class="bg-primary w-[92%] h-full rounded-full"></div>
+</div>
+</div>
+<div class="flex items-center gap-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">signal_cellular_alt</span>
+<span>-45 dBm signal strength</span>
+</div>
+</div>
+</div>
+<!-- Recent Activity Timeline -->
+<section class="glass-card rounded-xl p-lg">
+<div class="flex items-center justify-between mb-lg">
+<h3 class="font-headline-md text-headline-md text-on-background">Activity Timeline</h3>
+<button class="text-primary font-label-sm text-label-sm hover:bg-primary/10 px-md py-sm rounded-lg transition-colors">See full history</button>
+</div>
+<div class="relative space-y-0">
+<!-- Vertical line connecting events -->
+<div class="absolute left-[23px] top-4 bottom-4 w-px bg-outline-variant opacity-30"></div>
+<!-- Event 1 -->
+<div class="flex gap-md p-md hover:bg-surface-variant/50 rounded-xl transition-all relative">
+<div class="relative z-10 w-12 h-12 flex items-center justify-center bg-surface-container border border-outline-variant rounded-full text-primary shrink-0">
+<span class="material-symbols-outlined text-[20px]">wifi</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-body-md font-semibold text-on-background">Network Reconnected</h4>
+<span class="font-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">2m ago</span>
+</div>
+<p class="font-body-sm text-on-surface-variant leading-relaxed">The device successfully joined <span class="text-primary">Office_IoT_5G</span> after a brief router reboot.</p>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="flex gap-md p-md hover:bg-surface-variant/50 rounded-xl transition-all relative">
+<div class="relative z-10 w-12 h-12 flex items-center justify-center bg-surface-container border border-outline-variant rounded-full text-secondary shrink-0">
+<span class="material-symbols-outlined text-[20px]">system_update</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-body-md font-semibold text-on-background">System Update Applied</h4>
+<span class="font-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">45m ago</span>
+</div>
+<p class="font-body-sm text-on-surface-variant leading-relaxed">Firmware was updated to <span class="font-medium text-on-background">v2.4.1</span> to improve sensor accuracy.</p>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="flex gap-md p-md hover:bg-surface-variant/50 rounded-xl transition-all relative">
+<div class="relative z-10 w-12 h-12 flex items-center justify-center bg-surface-container border border-outline-variant rounded-full text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-body-md font-semibold text-on-background">Routine Motion Detected</h4>
+<span class="font-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">4h ago</span>
+</div>
+<p class="font-body-sm text-on-surface-variant leading-relaxed">Normal movement registered in <span class="font-medium text-on-background">Server Room B</span> during cleaning shift.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>
