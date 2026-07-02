@@ -1,71 +1,6 @@
 import { Wifi, RefreshCw, Eye, AlertTriangle, XCircle } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
-
-type EventIntent = "healthy" | "connectivity" | "warning" | "critical" | "default";
-
-interface TimelineEvent {
-  id: string;
-  title: string;
-  time: string;
-  description: React.ReactNode;
-  icon: React.ElementType;
-  intent: EventIntent;
-}
-
-const events: TimelineEvent[] = [
-  {
-    id: "1",
-    title: "Network Reconnected",
-    time: "2m ago",
-    description: (
-      <>
-        The device successfully joined <span className="text-primary">Office_IoT_5G</span> after a brief router reboot.
-      </>
-    ),
-    icon: Wifi,
-    intent: "connectivity"
-  },
-  {
-    id: "2",
-    title: "System Update Applied",
-    time: "45m ago",
-    description: (
-      <>
-        Firmware was updated to <span className="font-medium text-on-background">v2.4.1</span> to improve sensor accuracy.
-      </>
-    ),
-    icon: RefreshCw,
-    intent: "healthy"
-  },
-  {
-    id: "3",
-    title: "High Temperature Warning",
-    time: "2h ago",
-    description: "Sensor reported temperature exceeding 28°C in Server Room A.",
-    icon: AlertTriangle,
-    intent: "warning"
-  },
-  {
-    id: "4",
-    title: "Routine Motion Detected",
-    time: "4h ago",
-    description: (
-      <>
-        Normal movement registered in <span className="font-medium text-on-background">Server Room B</span> during cleaning shift.
-      </>
-    ),
-    icon: Eye,
-    intent: "default"
-  },
-  {
-    id: "5",
-    title: "Camera Feed Lost",
-    time: "Yesterday",
-    description: "Primary camera feed disconnected unexpectedly.",
-    icon: XCircle,
-    intent: "critical"
-  }
-];
+import type { TimelineEvent, EventIntent } from "@/lib/mock-data";
 
 function getIntentColors(intent: EventIntent) {
   switch (intent) {
@@ -82,7 +17,11 @@ function getIntentColors(intent: EventIntent) {
   }
 }
 
-export function ActivityTimeline() {
+interface ActivityTimelineProps {
+  events: TimelineEvent[];
+}
+
+export function ActivityTimeline({ events }: ActivityTimelineProps) {
   return (
     <GlassCard className="p-lg">
       <div className="flex items-center justify-between mb-lg">

@@ -22,8 +22,8 @@ export function Sidebar() {
   const links = [
     { name: "Overview", href: "/", icon: LayoutDashboard },
     { name: "Your Devices", href: "/devices", icon: Cpu },
-    { name: "Analytics", href: "/analytics", icon: LineChart },
-    { name: "Activity Timeline", href: "/activity", icon: History },
+    { name: "Insights", href: "/insights", icon: LineChart },
+    { name: "Event Logs", href: "/logs", icon: History },
     { name: "Team Members", href: "/team", icon: Users },
   ];
 

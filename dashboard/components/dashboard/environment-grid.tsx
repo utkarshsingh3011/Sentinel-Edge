@@ -1,7 +1,14 @@
-import { Thermometer, Droplets, UserSearch, Wifi, TrendingDown, CheckCircle, History, BarChart } from "lucide-react";
+import { Thermometer, Droplets, UserSearch, Wifi, TrendingDown, CheckCircle, History, TrendingUp, Minus } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
+import type { TelemetryData } from "@/lib/mock-data";
 
-export function EnvironmentGrid() {
+interface EnvironmentGridProps {
+  telemetry: TelemetryData;
+}
+
+export function EnvironmentGrid({ telemetry }: EnvironmentGridProps) {
+  const TrendIcon = telemetry.temperature.trend === "down" ? TrendingDown : telemetry.temperature.trend === "up" ? TrendingUp : Minus;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-xl">
       {/* Temperature */}
@@ -12,15 +19,15 @@ export function EnvironmentGrid() {
         </div>
         <div className="mb-md">
           <div className="flex items-baseline gap-xs">
-            <span className="font-display-lg text-display-lg text-on-background">24°</span>
-            <span className="font-body-lg text-body-lg text-on-surface-variant">C</span>
+            <span className="font-display-lg text-display-lg text-on-background">{telemetry.temperature.value}°</span>
+            <span className="font-body-lg text-body-lg text-on-surface-variant">{telemetry.temperature.unit}</span>
           </div>
-          <p className="font-body-sm text-on-surface-variant mt-1">Comfortable indoor temperature</p>
-          <p className="font-label-sm text-outline mt-1">Last updated 15 seconds ago</p>
+          <p className="font-body-sm text-on-surface-variant mt-1">{telemetry.temperature.description}</p>
+          <p className="font-label-sm text-outline mt-1">Last updated {telemetry.temperature.lastUpdated}</p>
         </div>
         <div className="flex items-center gap-xs text-[#4ade80] font-label-sm text-label-sm">
-          <TrendingDown className="w-4 h-4" />
-          <span>Getting cooler</span>
+          <TrendIcon className="w-4 h-4" />
+          <span>{telemetry.temperature.trendText}</span>
         </div>
       </GlassCard>
 
@@ -32,15 +39,15 @@ export function EnvironmentGrid() {
         </div>
         <div className="mb-md">
           <div className="flex items-baseline gap-xs">
-            <span className="font-display-lg text-display-lg text-on-background">45</span>
-            <span className="font-body-lg text-body-lg text-on-surface-variant">%</span>
+            <span className="font-display-lg text-display-lg text-on-background">{telemetry.humidity.value}</span>
+            <span className="font-body-lg text-body-lg text-on-surface-variant">{telemetry.humidity.unit}</span>
           </div>
-          <p className="font-body-sm text-on-surface-variant mt-1">Ideal humidity levels</p>
-          <p className="font-label-sm text-outline mt-1">Last updated 1 minute ago</p>
+          <p className="font-body-sm text-on-surface-variant mt-1">{telemetry.humidity.description}</p>
+          <p className="font-label-sm text-outline mt-1">Last updated {telemetry.humidity.lastUpdated}</p>
         </div>
         <div className="flex items-center gap-xs text-on-surface-variant font-label-sm text-label-sm">
           <CheckCircle className="w-4 h-4" />
-          <span>Stable environment</span>
+          <span>{telemetry.humidity.statusText}</span>
         </div>
       </GlassCard>
 
@@ -51,12 +58,12 @@ export function EnvironmentGrid() {
           <UserSearch className="text-on-surface-variant group-hover:scale-110 transition-transform w-6 h-6" />
         </div>
         <div className="mb-md">
-          <span className="font-headline-md text-headline-md text-on-background block h-[64px] flex items-center">No activity detected</span>
-          <p className="font-body-sm text-on-surface-variant mt-1">Last motion 4 hours ago</p>
+          <span className="font-headline-md text-headline-md text-on-background block h-[64px] flex items-center">{telemetry.security.status}</span>
+          <p className="font-body-sm text-on-surface-variant mt-1">Last motion {telemetry.security.lastMotion}</p>
         </div>
         <div className="flex items-center gap-xs text-on-surface-variant font-label-sm text-label-sm">
           <History className="w-4 h-4" />
-          <span>Area secure</span>
+          <span>{telemetry.security.stateText}</span>
         </div>
       </GlassCard>
 
@@ -67,11 +74,11 @@ export function EnvironmentGrid() {
           <Wifi className="text-primary group-hover:scale-110 transition-transform w-6 h-6" />
         </div>
         <div className="mb-md">
-          <span className="font-headline-lg text-headline-lg text-on-background block flex items-center">Excellent</span>
-          <p className="font-body-sm text-on-surface-variant mt-1">-45 dBm</p>
-          <p className="font-label-sm text-outline mt-1">Connected</p>
+          <span className="font-headline-lg text-headline-lg text-on-background block flex items-center">{telemetry.connectivity.status}</span>
+          <p className="font-body-sm text-on-surface-variant mt-1">{telemetry.connectivity.signalStrength}</p>
+          <p className="font-label-sm text-outline mt-1">{telemetry.connectivity.stateText}</p>
           <div className="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden mt-md mb-2">
-            <div className="bg-primary w-[92%] h-full rounded-full"></div>
+            <div className={`bg-primary h-full rounded-full`} style={{ width: `${telemetry.connectivity.quality}%` }}></div>
           </div>
         </div>
       </GlassCard>

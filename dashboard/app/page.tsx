@@ -2,8 +2,13 @@ import { Sparkles, Check } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
 import { EnvironmentGrid } from "@/components/dashboard/environment-grid";
 import { ActivityTimeline } from "@/components/dashboard/activity-timeline";
+import { fetchTelemetry, fetchEvents, fetchSummary } from "@/lib/api";
 
-export default function Dashboard() {
+export default async function Dashboard() {
+  const telemetry = await fetchTelemetry();
+  const events = await fetchEvents();
+  const summary = await fetchSummary();
+
   return (
     <main className="flex-1 p-margin-mobile md:p-xl max-w-[1536px] mx-auto w-full">
       {/* Hero Header */}
@@ -22,20 +27,18 @@ export default function Dashboard() {
             <h3 className="font-label-md uppercase tracking-widest text-primary">Today's Summary</h3>
           </div>
           <ul className="font-body-lg text-on-surface leading-relaxed space-y-2">
-            <li className="flex items-center gap-2"><Check className="text-primary w-5 h-5" /> Device online for 14 hours</li>
-            <li className="flex items-center gap-2"><Check className="text-primary w-5 h-5" /> 3 motion events detected</li>
-            <li className="flex items-center gap-2"><Check className="text-primary w-5 h-5" /> Temperature remained within the comfortable range</li>
-            <li className="flex items-center gap-2"><Check className="text-primary w-5 h-5" /> Wi-Fi connection stayed stable</li>
-            <li className="flex items-center gap-2"><Check className="text-primary w-5 h-5" /> No unusual activity detected</li>
+            {summary.map((item, i) => (
+              <li key={i} className="flex items-center gap-2"><Check className="text-primary w-5 h-5" /> {item}</li>
+            ))}
           </ul>
         </GlassCard>
       </section>
 
       {/* Current Environment Grid */}
-      <EnvironmentGrid />
+      <EnvironmentGrid telemetry={telemetry} />
 
       {/* Recent Activity Timeline */}
-      <ActivityTimeline />
+      <ActivityTimeline events={events} />
     </main>
   );
 }
