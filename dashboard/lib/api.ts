@@ -1,6 +1,6 @@
 import { telemetryData, eventsList, devicesList, summaryData, TelemetryData, TimelineEvent, Device } from "./mock-data";
 
-const BACKEND_URL = "http://localhost:8000";
+const BACKEND_URL = "http://127.0.0.1:8000";
 
 // Helper to check response or throw
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -76,8 +76,8 @@ export async function fetchDevices(): Promise<Device[]> {
   }
 }
 
-export async function fetchHealth(): Promise<{ status: string; service: string; timestamp: string }> {
-  return request<{ status: string; service: string; timestamp: string }>("/api/health");
+export async function fetchHealth(): Promise<{ status: string }> {
+  return request<{ status: string }>("/health");
 }
 
 // Keep mock fetching for logs & summary since they are frontend only

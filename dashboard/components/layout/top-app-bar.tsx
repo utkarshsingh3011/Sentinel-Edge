@@ -46,7 +46,7 @@ export function TopAppBar() {
             style={!isOnline ? { backgroundColor: "#f87171", boxShadow: "0 0 12px rgba(248, 113, 113, 0.6)" } : {}}
           ></span>
           <span className="text-label-sm font-label-sm text-on-surface">
-            {isOnline ? "All systems online" : "Backend offline"}
+            {isOnline ? "🟢 Backend Online" : "🔴 Backend Offline"}
           </span>
         </div>
         
