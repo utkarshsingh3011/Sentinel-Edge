@@ -8,13 +8,15 @@ import {
   Device,
 } from "./mock-data";
 
-const BACKEND_URL = "http://127.0.0.1:8000";
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ??
+  "http://192.168.0.105:8000";
 
 // Helper to check response or throw
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BACKEND_URL}${path}`, {
     ...options,
-    signal: AbortSignal.timeout(3000),
+    signal: AbortSignal.timeout(10000),
   });
 
   if (!res.ok) {

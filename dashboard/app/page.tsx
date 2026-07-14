@@ -3,7 +3,8 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { EnvironmentGrid } from "@/components/dashboard/environment-grid";
 import { ActivityTimeline } from "@/components/dashboard/activity-timeline";
 import { fetchTelemetry, fetchEvents, fetchSummary } from "@/lib/api";
-
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export default async function Dashboard() {
   const telemetry = await fetchTelemetry();
   const events = await fetchEvents();
