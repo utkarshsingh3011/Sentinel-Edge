@@ -47,11 +47,15 @@ The ESP32 sends telemetry over Wi-Fi to the backend, and the dashboard updates a
 
 ### Dashboard
 
-![Dashboard](assets/dashboard.png)
+
+![Dashboard](assets/dashboard.jpg)
+
+
 
 ### Hardware Setup
 
-![Hardware](assets/hardware-setup.png)
+
+![Hardware](assets/hardware-setup.jpg)
 
 ---
 
