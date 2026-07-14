@@ -29,6 +29,14 @@ export interface TelemetryData {
     statusText: string;
     lastUpdated: string;
   };
+  airQuality?: {
+    value: number;
+    unit: string;
+    description: string;
+    trend: "up" | "down" | "stable";
+    trendText: string;
+    lastUpdated: string;
+  };
   security: {
     status: string;
     lastMotion: string;
@@ -110,6 +118,14 @@ export const telemetryData: TelemetryData = {
     status: "stable",
     statusText: "Stable environment",
     lastUpdated: "1 minute ago",
+  },
+  airQuality: {
+    value: 50,
+    unit: "ppm",
+    description: "Good air quality",
+    trend: "stable",
+    trendText: "Stable",
+    lastUpdated: "Just now",
   },
   security: {
     status: "No activity detected",

@@ -4,11 +4,15 @@ from pydantic import BaseModel
 class SensorData(BaseModel):
     device: str
     temperature: float
+    humidity: float
+    gas: int
     motion: bool
 
 class TelemetryResponse(BaseModel):
     device: str
     temperature: float
+    humidity: float
+    gas: int
     motion: bool
     timestamp: datetime
 

@@ -14,7 +14,12 @@ async def receive_telemetry(data: SensorData):
     
     # Log the incoming data to the console as the original code did
     print(f"[{datetime.now().strftime('%H:%M:%S')}] Alert from {data.device}")
-    print(f" -> Temp: {data.temperature}°C | Motion: {data.motion}")
+    print(
+    f"Temp:{data.temperature}°C | "
+    f"Humidity:{data.humidity}% | "
+    f"Gas:{data.gas} | "
+    f"Motion:{data.motion}"
+)
     
     # Return success response to the ESP32
     return {"status": "success", "message": "Data received by Sentinel Edge SOC"}

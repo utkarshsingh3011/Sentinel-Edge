@@ -12,11 +12,13 @@ class InMemoryStorage:
         
         # 1. Update latest telemetry
         telemetry = TelemetryResponse(
-            device=data.device,
-            temperature=data.temperature,
-            motion=data.motion,
-            timestamp=now
-        )
+    device=data.device,
+    temperature=data.temperature,
+    humidity=data.humidity,
+    gas=data.gas,
+    motion=data.motion,
+    timestamp=now
+)
         self.latest_telemetry = telemetry
 
         # 2. Update or insert device status
