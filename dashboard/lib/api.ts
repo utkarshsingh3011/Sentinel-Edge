@@ -62,17 +62,14 @@ export async function fetchTelemetry(): Promise<TelemetryData> {
           data.humidity > 70
             ? "High humidity"
             : "Normal humidity",
-
         status:
           data.humidity > 70
             ? "unstable"
             : "stable",
-
         statusText:
           data.humidity > 70
             ? "Humidity is high"
             : "Stable environment",
-
         lastUpdated: new Date(data.timestamp).toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -100,65 +97,26 @@ export async function fetchTelemetry(): Promise<TelemetryData> {
 
       connectivity: {
         status: "Excellent",
-
         signalStrength: "-45 dBm",
-
         state: "connected",
-
         stateText: "Connected",
-
         quality: 100,
       },
-    } catch (error) {
-      console.warn(
-        "Telemetry fetch failed, using fallback mock data:",
-        error
-      );
-      return telemetryData;
-    }
-  }
+    };
 
-export async function fetchDevices(): Promise<Device[]> {
-    try {
-      const devices = await request<
-        Array<{
-          id: string;
-          name: string;
-          status: string;
-          last_seen: string;
-        }>
-      >("/devices");
+  } catch (error) {
+    console.error(error);
+    throw error;
+}
+}
+export async function fetchHealth(): Promise<{ status: string }> {
+  return request<{ status: string }>("/health");
+}
 
-      if (devices.length === 0) {
-        return [];
-      }
+export async function fetchEvents(): Promise<TimelineEvent[]> {
+  return eventsList;
+}
 
-      return devices.map((d) => ({
-        id: d.id,
-        name: d.name,
-        status: d.status as "online" | "offline",
-        lastSeen: new Date(d.last_seen).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      }));
-    } catch (error) {
-      console.warn(
-        "Devices fetch failed, using fallback mock data:",
-        error
-      );
-      return devicesList;
-    }
-  }
-
-  export async function fetchHealth(): Promise<{ status: string }> {
-    return request<{ status: string }>("/health");
-  }
-
-  export async function fetchEvents(): Promise<TimelineEvent[]> {
-    return eventsList;
-  }
-
-  export async function fetchSummary(): Promise<string[]> {
-    return summaryData;
-  }
+export async function fetchSummary(): Promise<string[]> {
+  return summaryData;
+}
