@@ -6,6 +6,8 @@ import {
   fetchRawHistory,
   fetchRawEvents,
   fetchHealth,
+  fetchSimulatorStatus,
+  toggleSimulator,
   RawTelemetry,
   RawEvent
 } from "./api";
@@ -20,6 +22,8 @@ interface TelemetryContextType {
   loading: boolean;
   refreshInterval: number; // in milliseconds
   setRefreshInterval: (ms: number) => void;
+  simulatorEnabled: boolean;
+  toggleSimulatorEnabled: (enabled: boolean) => Promise<void>;
 }
 
 const TelemetryContext = createContext<TelemetryContextType | undefined>(undefined);
@@ -33,6 +37,17 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
   const [lastUpdated, setLastUpdated] = useState<string>("Never");
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshInterval, setRefreshInterval] = useState<number>(2000); // Default 2 seconds
+  const [simulatorEnabled, setSimulatorEnabled] = useState<boolean>(true);
+
+  // Toggle simulator utility
+  const toggleSimulatorEnabled = async (enabled: boolean) => {
+    try {
+      const res = await toggleSimulator(enabled);
+      setSimulatorEnabled(res.simulator_enabled);
+    } catch (e) {
+      console.error("Failed to toggle simulator", e);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -40,12 +55,17 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
 
     async function pollData() {
       try {
-        // 1. Check backend health
-        const health = await fetchHealth();
+        // 1. Check backend health and simulator status
+        const [health, simStatus] = await Promise.all([
+          fetchHealth(),
+          fetchSimulatorStatus().catch(() => ({ simulator_enabled: true }))
+        ]);
+
         if (!isMounted) return;
         
         if (health.status === "online") {
           setBackendStatus("online");
+          setSimulatorEnabled(simStatus.simulator_enabled);
           
           // 2. Fetch latest telemetry, history, and events in parallel
           const [telemetry, hist, evs] = await Promise.all([
@@ -63,20 +83,21 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
             const now = new Date();
             setLastUpdated(now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
 
-            // Check if ESP32 is active (telemetry received in last 10 seconds)
+            // Heartbeat: Check if telemetry was received in the last 5 seconds
             const telemetryTime = new Date(telemetry.timestamp);
             const timeDiff = Math.abs(now.getTime() - telemetryTime.getTime()) / 1000;
             
-            if (timeDiff < 15) {
-              setEsp32Status("connected");
-            } else {
-              setEsp32Status("disconnected");
+            const isDeviceConnected = timeDiff <= 5;
+            setEsp32Status(isDeviceConnected ? "connected" : "disconnected");
+
+            // Charts should preserve historical data but stop updating until new telemetry arrives
+            if (isDeviceConnected) {
+              setHistory(hist);
             }
           } else {
             setEsp32Status("disconnected");
           }
 
-          setHistory(hist);
           setEvents(evs);
         } else {
           setBackendStatus("offline");
@@ -117,7 +138,9 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
         lastUpdated,
         loading,
         refreshInterval,
-        setRefreshInterval
+        setRefreshInterval,
+        simulatorEnabled,
+        toggleSimulatorEnabled
       }}
     >
       {children}

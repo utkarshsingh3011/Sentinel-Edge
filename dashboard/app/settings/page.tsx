@@ -5,7 +5,15 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { Settings, RefreshCw, Cpu, ShieldAlert, Wifi } from "lucide-react";
 
 export default function SettingsPage() {
-  const { refreshInterval, setRefreshInterval, backendStatus, esp32Status, latestTelemetry } = useTelemetry();
+  const { 
+    refreshInterval, 
+    setRefreshInterval, 
+    backendStatus, 
+    esp32Status, 
+    latestTelemetry,
+    simulatorEnabled,
+    toggleSimulatorEnabled
+  } = useTelemetry();
 
   return (
     <main className="flex-1 p-margin-mobile md:p-xl max-w-[1536px] mx-auto w-full space-y-md">
@@ -18,36 +26,65 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-        {/* Polling Preferences */}
-        <GlassCard className="p-lg border border-outline-variant/20 space-y-md">
-          <div className="flex items-center gap-sm text-primary mb-sm">
-            <RefreshCw className="w-5 h-5" />
-            <h3 className="font-label-sm uppercase tracking-wider font-bold">Polling Preferences</h3>
-          </div>
-          
-          <div className="space-y-sm">
-            <label className="font-label-sm text-on-surface-variant block">Refresh Interval (Polling Cycle)</label>
-            <p className="font-body-sm text-on-surface-variant">
-              Specify how frequently the dashboard queries the FastAPI backend for telemetry updates.
-            </p>
-            
-            <div className="flex gap-sm pt-2">
-              {[2000, 5000, 10000].map((ms) => (
-                <button
-                  key={ms}
-                  onClick={() => setRefreshInterval(ms)}
-                  className={`flex-1 py-2 rounded-lg font-label-sm text-label-sm font-semibold border transition-all ${
-                    refreshInterval === ms
-                      ? "bg-primary text-on-primary border-primary"
-                      : "border-outline-variant text-on-surface hover:bg-surface-variant"
-                  }`}
-                >
-                  {ms / 1000} Seconds {ms === 2000 ? "(Default)" : ""}
-                </button>
-              ))}
+        {/* Polling Preferences & Simulator */}
+        <div className="space-y-md">
+          {/* Polling Preferences */}
+          <GlassCard className="p-lg border border-outline-variant/20 space-y-md">
+            <div className="flex items-center gap-sm text-primary mb-sm">
+              <RefreshCw className="w-5 h-5" />
+              <h3 className="font-label-sm uppercase tracking-wider font-bold">Polling Preferences</h3>
             </div>
-          </div>
-        </GlassCard>
+            
+            <div className="space-y-sm">
+              <label className="font-label-sm text-on-surface-variant block">Refresh Interval (Polling Cycle)</label>
+              <p className="font-body-sm text-on-surface-variant">
+                Specify how frequently the dashboard queries the FastAPI backend for telemetry updates.
+              </p>
+              
+              <div className="flex gap-sm pt-2">
+                {[2000, 5000, 10000].map((ms) => (
+                  <button
+                    key={ms}
+                    onClick={() => setRefreshInterval(ms)}
+                    className={`flex-1 py-2 rounded-lg font-label-sm text-label-sm font-semibold border transition-all ${
+                      refreshInterval === ms
+                        ? "bg-primary text-on-primary border-primary"
+                        : "border-outline-variant text-on-surface hover:bg-surface-variant"
+                    }`}
+                  >
+                    {ms / 1000} Seconds {ms === 2000 ? "(Default)" : ""}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </GlassCard>
+
+          {/* Telemetry Simulator Toggle */}
+          <GlassCard className="p-lg border border-outline-variant/20 space-y-md">
+            <div className="flex items-center gap-sm text-primary mb-sm">
+              <Settings className="w-5 h-5" />
+              <h3 className="font-label-sm uppercase tracking-wider font-bold">Telemetry Simulation</h3>
+            </div>
+            
+            <div className="space-y-sm">
+              <label className="font-label-sm text-on-surface-variant block">Backend Simulator Status</label>
+              <p className="font-body-sm text-on-surface-variant">
+                Toggle the backend simulated environmental data generator. Disable this to test the heartbeat timeout when no telemetry data arrives for 5 seconds.
+              </p>
+              
+              <button
+                onClick={() => toggleSimulatorEnabled(!simulatorEnabled)}
+                className={`w-full py-2.5 rounded-lg font-label-sm text-label-sm font-semibold border transition-all mt-2 cursor-pointer ${
+                  simulatorEnabled
+                    ? "bg-[#4ade80]/10 text-[#4ade80] border-[#4ade80]/30 hover:bg-[#4ade80]/20"
+                    : "bg-[#f87171]/10 text-[#f87171] border-[#f87171]/30 hover:bg-[#f87171]/20"
+                }`}
+              >
+                {simulatorEnabled ? "🟢 Simulator Active (Click to Pause)" : "🔴 Simulator Paused (Click to Resume)"}
+              </button>
+            </div>
+          </GlassCard>
+        </div>
 
         {/* Environmental Thresholds (Visual reference) */}
         <GlassCard className="p-lg border border-outline-variant/20 space-y-md">

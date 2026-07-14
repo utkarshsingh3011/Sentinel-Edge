@@ -39,6 +39,15 @@ async def get_telemetry_history():
 async def get_events():
     return storage.get_events()
 
+@router.get("/simulator/status")
+async def get_simulator_status():
+    return {"simulator_enabled": storage.simulator_enabled}
+
+@router.post("/simulator/toggle")
+async def toggle_simulator(enabled: bool):
+    storage.simulator_enabled = enabled
+    return {"status": "success", "simulator_enabled": storage.simulator_enabled}
+
 @router.get("/devices", response_model=List[Device])
 async def get_devices():
     return storage.get_devices()

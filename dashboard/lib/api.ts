@@ -61,3 +61,13 @@ export async function fetchRawEvents(): Promise<RawEvent[]> {
 export async function fetchHealth(): Promise<HealthResponse> {
   return request<HealthResponse>("/health");
 }
+
+export async function fetchSimulatorStatus(): Promise<{ simulator_enabled: boolean }> {
+  return request<{ simulator_enabled: boolean }>("/simulator/status");
+}
+
+export async function toggleSimulator(enabled: boolean): Promise<{ simulator_enabled: boolean }> {
+  return request<{ simulator_enabled: boolean }>(`/simulator/toggle?enabled=${enabled}`, {
+    method: "POST",
+  });
+}

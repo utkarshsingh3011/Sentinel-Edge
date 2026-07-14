@@ -13,6 +13,7 @@ class InMemoryStorage:
         self.history: List[TelemetryResponse] = []
         self.events: List[EventResponse] = []
         self.last_post_time: float = 0.0
+        self.simulator_enabled: bool = True
         
         # Seed initial history and event data
         self._seed_data()
@@ -77,6 +78,8 @@ class InMemoryStorage:
         while True:
             try:
                 time.sleep(2)
+                if not self.simulator_enabled:
+                    continue
                 # Check if 10 seconds have passed since the last real POST
                 if time.time() - self.last_post_time > 10:
                     now = datetime.now()
