@@ -1,62 +1,51 @@
 "use client";
 
-import { Home, Bell, Settings } from "lucide-react";
-import { useEffect, useState } from "react";
-import { fetchHealth } from "@/lib/api";
+import { useTelemetry } from "@/lib/telemetry-context";
 
 export function TopAppBar() {
-  const [isOnline, setIsOnline] = useState<boolean>(true);
-
-  useEffect(() => {
-    let active = true;
-    async function checkHealth() {
-      try {
-        const health = await fetchHealth();
-        if (active) {
-          setIsOnline(health.status === "online");
-        }
-      } catch (err) {
-        if (active) {
-          setIsOnline(false);
-        }
-      }
-    }
-
-    checkHealth();
-    const interval = setInterval(checkHealth, 5000);
-
-    return () => {
-      active = false;
-      clearInterval(interval);
-    };
-  }, []);
+  const { backendStatus, esp32Status, lastUpdated } = useTelemetry();
 
   return (
-    <header className="flex justify-between items-center w-full px-lg h-20 max-w-[1536px] mx-auto bg-background sticky top-0 z-30">
-      <div className="flex items-center gap-sm text-on-surface-variant font-body-sm text-body-sm">
-        <Home className="w-[18px] h-[18px]" />
-        <span className="text-outline">/</span>
-        <span className="text-on-surface">Home</span>
+    <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center w-full px-lg py-md gap-md max-w-[1536px] mx-auto bg-[#0F1115]/80 backdrop-blur-md sticky top-0 z-30 border-b border-outline-variant/20">
+      <div>
+        <h1 className="font-headline-md text-headline-md font-bold text-on-background leading-none mb-1">Sentinel Edge</h1>
+        <p className="font-body-sm text-body-sm text-on-surface-variant">Real-Time Edge Monitoring Dashboard</p>
       </div>
       
-      <div className="flex items-center gap-md">
-        <div className="hidden md:flex items-center gap-sm px-md py-1.5 bg-surface-container rounded-full border border-outline-variant">
-          <span 
-            className={`status-dot ${isOnline ? "healthy" : ""}`}
-            style={!isOnline ? { backgroundColor: "#f87171", boxShadow: "0 0 12px rgba(248, 113, 113, 0.6)" } : {}}
-          ></span>
-          <span className="text-label-sm font-label-sm text-on-surface">
-            {isOnline ? "🟢 Backend Online" : "🔴 Backend Offline"}
+      <div className="flex flex-wrap items-center gap-md">
+        <div className="flex items-center gap-xs px-md py-1 bg-surface-container rounded-full border border-outline-variant">
+          <span className={`status-dot ${backendStatus === "online" ? "healthy" : ""}`} style={backendStatus === "offline" ? { backgroundColor: "#f87171" } : {}}></span>
+          <span className="text-label-sm font-label-sm text-on-surface uppercase tracking-wider">
+            Live Monitoring
           </span>
         </div>
         
-        <button className="text-on-surface-variant hover:text-primary transition-colors p-sm rounded-full hover:bg-surface-variant">
-          <Bell className="w-5 h-5" />
-        </button>
-        <button className="text-on-surface-variant hover:text-primary transition-colors p-sm rounded-full hover:bg-surface-variant">
-          <Settings className="w-5 h-5" />
-        </button>
+        <div className="flex flex-row items-center gap-md text-label-sm font-label-sm text-on-surface-variant">
+          <div className="flex items-center gap-xs">
+            <span>Backend:</span>
+            <span className={backendStatus === "online" ? "text-[#4ade80] font-bold" : "text-[#f87171] font-bold"}>
+              {backendStatus === "online" ? "Online" : "Offline"}
+            </span>
+          </div>
+          
+          <div className="text-outline-variant">|</div>
+          
+          <div className="flex items-center gap-xs">
+            <span>ESP32:</span>
+            <span className={esp32Status === "connected" ? "text-[#4ade80] font-bold" : "text-[#f87171] font-bold"}>
+              {esp32Status === "connected" ? "Connected" : "Disconnected"}
+            </span>
+          </div>
+          
+          <div className="hidden md:inline-block text-outline-variant">|</div>
+          
+          <div className="hidden md:flex items-center gap-xs">
+            <span>Updated:</span>
+            <span className="text-primary font-mono font-bold">{lastUpdated}</span>
+          </div>
+        </div>
       </div>
     </header>
   );
 }
+

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel
 
 class SensorData(BaseModel):
@@ -7,6 +8,8 @@ class SensorData(BaseModel):
     humidity: float
     gas: int
     motion: bool
+    rssi: Optional[int] = None
+    ip_address: Optional[str] = None
 
 class TelemetryResponse(BaseModel):
     device: str
@@ -15,6 +18,8 @@ class TelemetryResponse(BaseModel):
     gas: int
     motion: bool
     timestamp: datetime
+    rssi: int
+    ip_address: str
 
 class Device(BaseModel):
     id: str
@@ -26,3 +31,9 @@ class HealthResponse(BaseModel):
     status: str
     service: str
     timestamp: str
+
+class EventResponse(BaseModel):
+    id: str
+    time: datetime
+    severity: str  # "info", "warning", "critical", "success"
+    message: str

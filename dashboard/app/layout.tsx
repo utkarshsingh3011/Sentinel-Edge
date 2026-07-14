@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopAppBar } from "@/components/layout/top-app-bar";
+import { TelemetryProvider } from "@/lib/telemetry-context";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -10,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Dashboard - Sentinel Edge",
-  description: "Monitoring for Sentinel Edge devices",
+  title: "Sentinel Edge - Real-Time IoT Dashboard",
+  description: "Real-time environmental telemetry monitoring for Sentinel Edge devices",
 };
 
 export default function RootLayout({
@@ -25,11 +26,13 @@ export default function RootLayout({
       className={`${inter.variable} antialiased dark`}
     >
       <body className="min-h-screen flex font-body-md text-on-surface bg-[#0F1115]">
-        <Sidebar />
-        <div className="flex-1 md:ml-64 flex flex-col min-h-screen relative">
-          <TopAppBar />
-          {children}
-        </div>
+        <TelemetryProvider>
+          <Sidebar />
+          <div className="flex-1 md:ml-64 flex flex-col min-h-screen relative">
+            <TopAppBar />
+            {children}
+          </div>
+        </TelemetryProvider>
       </body>
     </html>
   );
