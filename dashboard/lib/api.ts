@@ -80,22 +80,6 @@ export async function fetchTelemetry(): Promise<TelemetryData> {
         }),
       },
 
-      airQuality: {
-        value: data.gas,
-        unit: "",
-        description:
-          data.gas > 200
-            ? "Poor"
-            : "Good",
-        trend: "stable",
-        trendText: "Stable",
-        lastUpdated: new Date(data.timestamp).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        }),
-      },
-
       security: {
         status: data.motion
           ? "Activity detected"
@@ -125,8 +109,7 @@ export async function fetchTelemetry(): Promise<TelemetryData> {
 
         quality: 100,
       },
-    };
-  } catch (error) {
+    } catch (error) {
       console.warn(
         "Telemetry fetch failed, using fallback mock data:",
         error
