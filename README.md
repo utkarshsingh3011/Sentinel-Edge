@@ -107,6 +107,6 @@ npm run dev
 
 ---
 
-Thanks for stopping by!
+Thanks for stopping by!!
 
 If you have suggestions or ideas to improve the project, feel free to open an issue or reach out.
