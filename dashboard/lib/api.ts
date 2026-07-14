@@ -23,12 +23,18 @@ export interface HealthResponse {
 }
 
 const getBackendUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (process.env.NEXT_PUBLIC_BACKEND_URL) {
+    return process.env.NEXT_PUBLIC_BACKEND_URL;
+  }
   if (typeof window !== "undefined") {
     // Dynamically fallback to current host's port 8000 on client side
     const hostname = window.location.hostname;
     return `http://${hostname}:8000`;
   }
-  return process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
+  return "http://127.0.0.1:8000";
 };
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {

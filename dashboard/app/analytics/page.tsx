@@ -26,7 +26,7 @@ export default function AnalyticsPage() {
   const minGas = gases.length ? Math.min(...gases).toString() : "--";
   const maxGas = gases.length ? Math.max(...gases).toString() : "--";
 
-  const isConnected = backendStatus === "online" && esp32Status === "connected";
+  const isConnected = backendStatus === "online" && esp32Status === "online";
 
   return (
     <main className="flex-1 p-margin-mobile md:p-xl max-w-[1536px] mx-auto w-full space-y-md">

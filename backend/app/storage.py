@@ -196,12 +196,12 @@ class InMemoryStorage:
         return self.events
 
     def get_devices(self) -> List[Device]:
-        # Mark devices offline if they haven't sent telemetry in over 15 seconds
+        # Mark devices offline if they haven't sent telemetry in over 10 seconds
         now = datetime.now()
         updated_devices = []
         for dev in self.devices.values():
             status = "online"
-            if (now - dev.last_seen).total_seconds() > 15:
+            if (now - dev.last_seen).total_seconds() > 10:
                 status = "offline"
             updated_devices.append(Device(
                 id=dev.id,

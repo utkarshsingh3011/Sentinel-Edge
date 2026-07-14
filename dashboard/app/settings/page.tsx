@@ -2,14 +2,13 @@
 
 import { useTelemetry } from "@/lib/telemetry-context";
 import { GlassCard } from "@/components/ui/glass-card";
-import { Settings, RefreshCw, Cpu, ShieldAlert, Wifi } from "lucide-react";
+import { Settings, RefreshCw, Cpu, ShieldAlert } from "lucide-react";
 
 export default function SettingsPage() {
   const { 
     refreshInterval, 
     setRefreshInterval, 
     backendStatus, 
-    esp32Status, 
     latestTelemetry,
     simulatorEnabled,
     toggleSimulatorEnabled

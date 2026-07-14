@@ -1,4 +1,4 @@
-import { Wifi, RefreshCw, Eye, AlertTriangle, XCircle, Thermometer, Droplets, UserSearch } from "lucide-react";
+import { Wifi, RefreshCw, Eye, AlertTriangle, XCircle } from "lucide-react";
 import type { ElementType, ReactNode } from "react";
 
 export type EventIntent = "healthy" | "connectivity" | "warning" | "critical" | "default";

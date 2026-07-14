@@ -16,7 +16,18 @@ interface LiveChartsProps {
   history: RawTelemetry[];
 }
 
-const CustomTooltip = ({ active, payload, unit }: any) => {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    payload: {
+      time: string;
+    };
+  }>;
+  unit?: string;
+}
+
+const CustomTooltip = ({ active, payload, unit }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-surface-container-high border border-outline-variant/60 p-sm rounded-lg backdrop-blur-md text-label-sm shadow-lg">

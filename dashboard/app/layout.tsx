@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopAppBar } from "@/components/layout/top-app-bar";
+import { Footer } from "@/components/layout/footer";
+import { ToastContainer } from "@/components/ui/toast-container";
 import { TelemetryProvider } from "@/lib/telemetry-context";
 
 const inter = Inter({
@@ -30,7 +32,11 @@ export default function RootLayout({
           <Sidebar />
           <div className="flex-1 md:ml-64 flex flex-col min-h-screen relative">
             <TopAppBar />
-            {children}
+            <div className="flex-1 flex flex-col w-full">
+              {children}
+            </div>
+            <Footer />
+            <ToastContainer />
           </div>
         </TelemetryProvider>
       </body>

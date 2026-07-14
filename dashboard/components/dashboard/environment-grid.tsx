@@ -6,23 +6,21 @@ import {
   Wind,
   Eye,
   Wifi,
-  Cpu,
-  TrendingUp,
-  TrendingDown,
-  Minus
+  Cpu
 } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
 import { RawTelemetry } from "@/lib/api";
+import { getRelativeTimeString } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 interface EnvironmentGridProps {
   telemetry: RawTelemetry | null;
   backendStatus: "online" | "offline";
-  esp32Status: "connected" | "disconnected";
+  esp32Status: "online" | "offline";
 }
 
 export function EnvironmentGrid({ telemetry, backendStatus, esp32Status }: EnvironmentGridProps) {
-  // We need to trigger a render update every second to keep the "seconds ago" timers fresh!
+  // Trigger a render update every second to keep the "seconds ago" timers fresh
   const [, setTick] = useState(0);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -31,24 +29,9 @@ export function EnvironmentGrid({ telemetry, backendStatus, esp32Status }: Envir
     return () => clearInterval(interval);
   }, []);
 
-  const isDeviceOnline = backendStatus === "online" && esp32Status === "connected" && telemetry !== null;
+  const isDeviceOnline = backendStatus === "online" && esp32Status === "online" && telemetry !== null;
   const hasTelemetry = telemetry !== null;
-
-  // Helper to format relative time
-  const getRelativeTimeString = (timestampStr?: string) => {
-    if (!timestampStr) return "Never";
-    const date = new Date(timestampStr);
-    const elapsedSeconds = Math.max(0, Math.floor((new Date().getTime() - date.getTime()) / 1000));
-    if (elapsedSeconds < 60) {
-      return `${elapsedSeconds} sec ago`;
-    }
-    const mins = Math.floor(elapsedSeconds / 60);
-    if (mins < 60) {
-      return `${mins} min ago`;
-    }
-    const hours = Math.floor(mins / 60);
-    return `${hours} hr ago`;
-  };
+  const lastSeenText = telemetry?.timestamp ? getRelativeTimeString(telemetry.timestamp) : "Never";
 
   // 1. Temperature Card Logic
   const temp = hasTelemetry ? telemetry!.temperature : 0;
@@ -72,29 +55,8 @@ export function EnvironmentGrid({ telemetry, backendStatus, esp32Status }: Envir
     }
   }
 
-  let trendText = "Stable";
-  let TrendIcon = Minus;
-  let trendColor = "text-outline";
-
-  if (isDeviceOnline) {
-    if (temp > 27) {
-      trendText = "↑ Getting Warmer";
-      TrendIcon = TrendingUp;
-      trendColor = "text-[#f87171]";
-    } else if (temp < 22) {
-      trendText = "↓ Cooling";
-      TrendIcon = TrendingDown;
-      trendColor = "text-[#60a5fa]";
-    } else {
-      trendText = "→ Stable";
-      TrendIcon = Minus;
-      trendColor = "text-[#4ade80]";
-    }
-  }
-
   // 2. Humidity Card Logic
   const humidity = hasTelemetry ? telemetry!.humidity : 0;
-  const humStatus = isDeviceOnline ? "Normal" : "Stale";
   const humColorClass = isDeviceOnline ? "text-[#60a5fa] border-[#60a5fa]/20" : "text-outline border-outline-variant/30";
 
   // 3. Gas Card Logic
@@ -104,15 +66,18 @@ export function EnvironmentGrid({ telemetry, backendStatus, esp32Status }: Envir
   let gasBgClass = "";
 
   if (hasTelemetry) {
-    if (gas <= 200) {
+    if (gas <= 150) {
       gasStatus = "Good";
       gasColorClass = isDeviceOnline ? "text-[#4ade80] border-[#4ade80]/20" : "text-outline border-outline-variant/30";
+    } else if (gas <= 250) {
+      gasStatus = "Moderate";
+      gasColorClass = isDeviceOnline ? "text-[#60a5fa] border-[#60a5fa]/20" : "text-outline border-outline-variant/30";
     } else if (gas <= 400) {
-      gasStatus = "Poor Air Quality";
+      gasStatus = "Poor";
       gasColorClass = isDeviceOnline ? "text-[#fb923c] border-[#fb923c]/20" : "text-outline border-outline-variant/30";
       gasBgClass = isDeviceOnline ? "bg-[#fb923c]/5 border-[#fb923c]/40" : "";
     } else {
-      gasStatus = "Gas Leak Detected";
+      gasStatus = "Danger";
       gasColorClass = isDeviceOnline ? "text-[#f87171] border-[#f87171]/20" : "text-outline border-outline-variant/30";
       gasBgClass = isDeviceOnline ? "bg-[#f87171]/10 border-[#f87171]/50 pulse-glow" : "";
     }
@@ -153,8 +118,6 @@ export function EnvironmentGrid({ telemetry, backendStatus, esp32Status }: Envir
     }
   }
 
-  const lastSeenText = hasTelemetry ? getRelativeTimeString(telemetry!.timestamp) : "Never";
-
   return (
     <div className="space-y-md">
       {/* FIRST ROW: Environmental Telemetry */}
@@ -163,31 +126,34 @@ export function EnvironmentGrid({ telemetry, backendStatus, esp32Status }: Envir
         {/* Temperature Card */}
         <GlassCard 
           ambientGlow={isDeviceOnline && temp > 26}
-          className={`p-lg flex flex-col justify-between min-h-[160px] transition-all border ${tempColorClass} ${tempBgClass} ${!isDeviceOnline ? "opacity-50 hover:translate-y-0" : ""}`}
+          className={`p-lg flex flex-col justify-between min-h-[160px] transition-all border ${tempColorClass} ${tempBgClass} ${!isDeviceOnline ? "opacity-65 hover:translate-y-0" : ""}`}
           whileHover={isDeviceOnline ? { y: -4, transition: { duration: 0.2 } } : { y: 0 }}
         >
           <div className="flex items-center justify-between mb-sm">
             <span className="font-label-sm uppercase tracking-wider text-on-surface-variant">Temperature</span>
-            <Thermometer className="w-5 h-5 opacity-70" />
+            <div className="flex items-center gap-2">
+              {!isDeviceOnline && (
+                <span className="px-2 py-0.5 text-[9px] font-extrabold bg-[#f87171]/20 text-[#f87171] border border-[#f87171]/30 rounded-full tracking-wider">
+                  OFFLINE
+                </span>
+              )}
+              <Thermometer className="w-5 h-5 opacity-70" />
+            </div>
           </div>
           <div className="my-sm">
             <span className="font-display-lg text-display-lg leading-none text-on-background">
               {hasTelemetry ? `${temp.toFixed(1)}°C` : "--°C"}
             </span>
           </div>
-          <div className="flex items-center justify-between mt-sm border-t border-outline-variant/20 pt-2 font-label-sm text-label-sm">
-            {isDeviceOnline ? (
-              <>
-                <span className="font-semibold">{tempStatus}</span>
-                <span className={`flex items-center gap-xs font-medium ${trendColor}`}>
-                  <TrendIcon className="w-4 h-4" />
-                  {trendText}
-                </span>
-              </>
-            ) : (
-              <span className="text-[#f87171] font-medium font-mono text-[11px] leading-tight">
-                Stale: Last updated {lastSeenText}
+          <div className="flex flex-col gap-xs mt-sm border-t border-outline-variant/20 pt-2 font-label-sm text-label-sm">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-on-surface">{hasTelemetry ? tempStatus : "Offline"}</span>
+              <span className={isDeviceOnline ? "text-on-surface-variant font-mono" : "text-[#f87171] font-semibold"}>
+                {isDeviceOnline ? `Updated ${lastSeenText}` : `Last seen ${lastSeenText}`}
               </span>
+            </div>
+            {!isDeviceOnline && (
+              <span className="text-outline text-[10px] italic">Waiting for device...</span>
             )}
           </div>
         </GlassCard>
@@ -195,94 +161,110 @@ export function EnvironmentGrid({ telemetry, backendStatus, esp32Status }: Envir
         {/* Humidity Card */}
         <GlassCard 
           ambientGlow={isDeviceOnline}
-          className={`p-lg flex flex-col justify-between min-h-[160px] transition-all border ${humColorClass} ${!isDeviceOnline ? "opacity-50 hover:translate-y-0" : ""}`}
+          className={`p-lg flex flex-col justify-between min-h-[160px] transition-all border ${humColorClass} ${!isDeviceOnline ? "opacity-65 hover:translate-y-0" : ""}`}
           whileHover={isDeviceOnline ? { y: -4, transition: { duration: 0.2 } } : { y: 0 }}
         >
           <div className="flex items-center justify-between mb-sm">
             <span className="font-label-sm uppercase tracking-wider text-on-surface-variant">Humidity</span>
-            <Droplets className="w-5 h-5 opacity-70" />
+            <div className="flex items-center gap-2">
+              {!isDeviceOnline && (
+                <span className="px-2 py-0.5 text-[9px] font-extrabold bg-[#f87171]/20 text-[#f87171] border border-[#f87171]/30 rounded-full tracking-wider">
+                  OFFLINE
+                </span>
+              )}
+              <Droplets className="w-5 h-5 opacity-70" />
+            </div>
           </div>
           <div className="my-sm">
             <span className="font-display-lg text-display-lg leading-none text-on-background">
               {hasTelemetry ? `${humidity.toFixed(0)}%` : "--%"}
             </span>
           </div>
-          <div className="flex items-center justify-between mt-sm border-t border-outline-variant/20 pt-2 font-label-sm text-label-sm">
-            {isDeviceOnline ? (
-              <span className="font-semibold">{humStatus}</span>
-            ) : (
-              <span className="text-[#f87171] font-medium font-mono text-[11px] leading-tight">
-                Stale: Last updated {lastSeenText}
+          <div className="flex flex-col gap-xs mt-sm border-t border-outline-variant/20 pt-2 font-label-sm text-label-sm">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-on-surface">{isDeviceOnline ? "Normal" : (hasTelemetry ? "Stale" : "Offline")}</span>
+              <span className={isDeviceOnline ? "text-on-surface-variant font-mono" : "text-[#f87171] font-semibold"}>
+                {isDeviceOnline ? `Updated ${lastSeenText}` : `Last seen ${lastSeenText}`}
               </span>
+            </div>
+            {!isDeviceOnline && (
+              <span className="text-outline text-[10px] italic">Waiting for device...</span>
             )}
           </div>
         </GlassCard>
 
         {/* Air Quality Card */}
         <GlassCard 
-          ambientGlow={isDeviceOnline && gas > 200}
-          className={`p-lg flex flex-col justify-between min-h-[160px] transition-all border ${gasColorClass} ${gasBgClass} ${!isDeviceOnline ? "opacity-50 hover:translate-y-0" : ""}`}
+          ambientGlow={isDeviceOnline && gas > 150}
+          className={`p-lg flex flex-col justify-between min-h-[160px] transition-all border ${gasColorClass} ${gasBgClass} ${!isDeviceOnline ? "opacity-65 hover:translate-y-0" : ""}`}
           whileHover={isDeviceOnline ? { y: -4, transition: { duration: 0.2 } } : { y: 0 }}
         >
           <div className="flex items-center justify-between mb-sm">
             <span className="font-label-sm uppercase tracking-wider text-on-surface-variant">Air Quality</span>
-            <Wind className="w-5 h-5 opacity-70" />
+            <div className="flex items-center gap-2">
+              {!isDeviceOnline && (
+                <span className="px-2 py-0.5 text-[9px] font-extrabold bg-[#f87171]/20 text-[#f87171] border border-[#f87171]/30 rounded-full tracking-wider">
+                  OFFLINE
+                </span>
+              )}
+              <Wind className="w-5 h-5 opacity-70" />
+            </div>
           </div>
           <div className="my-sm flex flex-col">
-            <span className="font-body-lg text-body-lg text-on-surface-variant">
-              Gas Sensor: <span className="text-on-background font-bold">{hasTelemetry ? gas : "---"}</span>
+            <span className="font-body-md text-on-surface-variant">
+              MQ2 Value: <span className="text-on-background font-bold font-mono">{hasTelemetry ? gas : "---"}</span>
             </span>
             <span className="font-headline-md text-headline-md leading-tight text-on-background font-bold mt-1">
-              {hasTelemetry ? (isDeviceOnline ? gasStatus : "Stale") : "Offline"}
+              {hasTelemetry ? gasStatus : "Offline"}
             </span>
           </div>
-          <div className="mt-sm border-t border-outline-variant/20 pt-2 flex items-center justify-between">
-            {isDeviceOnline ? (
-              <span className="font-label-sm text-label-sm font-semibold opacity-70">
-                MQ2 Raw Reading
+          <div className="flex flex-col gap-xs mt-sm border-t border-outline-variant/20 pt-2 font-label-sm text-label-sm">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-on-surface">MQ2 Sensor</span>
+              <span className={isDeviceOnline ? "text-on-surface-variant font-mono" : "text-[#f87171] font-semibold"}>
+                {isDeviceOnline ? `Updated ${lastSeenText}` : `Last seen ${lastSeenText}`}
               </span>
-            ) : (
-              <span className="text-[#f87171] font-medium font-mono text-[11px] leading-tight">
-                Stale: Last updated {lastSeenText}
-              </span>
+            </div>
+            {!isDeviceOnline && (
+              <span className="text-outline text-[10px] italic">Waiting for device...</span>
             )}
           </div>
         </GlassCard>
 
         {/* Motion Detection Card */}
         <GlassCard 
+          key={motionDetected ? "motion-active" : "motion-idle"}
           ambientGlow={isDeviceOnline && motionDetected}
-          animate={isDeviceOnline && motionDetected ? { scale: [1, 1.02, 1] } : {}}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className={`p-lg flex flex-col justify-between min-h-[160px] transition-all border ${motionCardClass} ${!isDeviceOnline ? "opacity-50 hover:translate-y-0" : ""}`}
+          animate={isDeviceOnline && motionDetected ? { scale: [1, 1.04, 0.97, 1.02, 1] } : {}}
+          transition={{ duration: 0.5 }}
+          className={`p-lg flex flex-col justify-between min-h-[160px] transition-all border ${motionCardClass} ${!isDeviceOnline ? "opacity-65 hover:translate-y-0" : ""}`}
           whileHover={isDeviceOnline ? { y: -4, transition: { duration: 0.2 } } : { y: 0 }}
         >
           <div className="flex items-center justify-between mb-sm">
             <span className="font-label-sm uppercase tracking-wider text-on-surface-variant">Motion Detection</span>
-            <Eye className={`w-5 h-5 ${isDeviceOnline && motionDetected ? "text-[#f87171]" : "opacity-70"}`} />
+            <div className="flex items-center gap-2">
+              {!isDeviceOnline && (
+                <span className="px-2 py-0.5 text-[9px] font-extrabold bg-[#f87171]/20 text-[#f87171] border border-[#f87171]/30 rounded-full tracking-wider">
+                  OFFLINE
+                </span>
+              )}
+              <Eye className={`w-5 h-5 ${isDeviceOnline && motionDetected ? "text-[#f87171]" : "opacity-70"}`} />
+            </div>
           </div>
           <div className="my-sm">
             <span className={`font-headline-lg text-headline-lg font-bold leading-none ${isDeviceOnline && motionDetected ? "text-[#f87171]" : "text-on-background"}`}>
-              {hasTelemetry ? (isDeviceOnline ? motionStatus : "Stale") : "Offline"}
+              {hasTelemetry ? motionStatus : "Offline"}
             </span>
           </div>
-          <div className="flex items-center justify-between mt-sm border-t border-outline-variant/20 pt-2 font-label-sm text-label-sm">
-            {isDeviceOnline ? (
-              <>
-                <span className="font-semibold opacity-70">
-                  PIR Sensor State
-                </span>
-                {motionDetected && (
-                  <span className="flex items-center gap-1 text-[#f87171] font-bold">
-                    <span className="status-dot bg-[#f87171] animate-ping h-2.5 w-2.5 rounded-full inline-block"></span>
-                    ACTIVE
-                  </span>
-                )}
-              </>
-            ) : (
-              <span className="text-[#f87171] font-medium font-mono text-[11px] leading-tight">
-                Stale: Last updated {lastSeenText}
+          <div className="flex flex-col gap-xs mt-sm border-t border-outline-variant/20 pt-2 font-label-sm text-label-sm">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-on-surface">PIR Sensor State</span>
+              <span className={isDeviceOnline ? "text-on-surface-variant font-mono" : "text-[#f87171] font-semibold"}>
+                {isDeviceOnline ? `Updated ${lastSeenText}` : `Last seen ${lastSeenText}`}
               </span>
+            </div>
+            {!isDeviceOnline && (
+              <span className="text-outline text-[10px] italic">Waiting for device...</span>
             )}
           </div>
         </GlassCard>
@@ -308,8 +290,8 @@ export function EnvironmentGrid({ telemetry, backendStatus, esp32Status }: Envir
                 </p>
               </div>
               <div className="space-y-1">
-                <p className="font-label-sm text-on-surface-variant">WiFi RSSI</p>
-                <p className="font-body-md font-bold text-on-background">
+                <p className="font-label-sm text-on-surface-variant">RSSI</p>
+                <p className="font-body-md font-bold text-on-background font-mono">
                   {isDeviceOnline ? `${telemetry!.rssi} dBm` : "---"}
                 </p>
               </div>
@@ -317,24 +299,28 @@ export function EnvironmentGrid({ telemetry, backendStatus, esp32Status }: Envir
                 <p className="font-label-sm text-on-surface-variant">Signal Quality</p>
                 <p className={`font-body-md font-bold ${signalColorClass}`}>{signalQuality}</p>
               </div>
-              <div className="space-y-1 flex items-center gap-md">
-                <div>
-                  <p className="font-label-sm text-on-surface-variant">Backend</p>
-                  <p className={`font-label-sm ${backendStatus === "online" ? "text-[#4ade80]" : "text-[#f87171]"}`}>{backendStatus === "online" ? "🟢 Online" : "🔴 Offline"}</p>
-                </div>
-                <div>
-                  <p className="font-label-sm text-on-surface-variant">ESP32</p>
-                  <p className={`font-label-sm ${isDeviceOnline ? "text-[#4ade80]" : "text-[#f87171]"}`}>
-                    {isDeviceOnline ? "🟢 Online" : "🔴 Offline"}
-                  </p>
-                </div>
+              <div className="space-y-1">
+                <p className="font-label-sm text-on-surface-variant">Backend Status</p>
+                <p className={`font-body-md font-bold ${backendStatus === "online" ? "text-[#4ade80]" : "text-[#f87171]"}`}>
+                  {backendStatus === "online" ? "Online" : "Offline"}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="font-label-sm text-on-surface-variant">ESP32 Status</p>
+                <p className={`font-body-md font-bold ${isDeviceOnline ? "text-[#4ade80]" : "text-[#f87171]"}`}>
+                  {isDeviceOnline ? "Online" : "Offline"}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="font-label-sm text-on-surface-variant">IP Address</p>
+                <p className="font-body-md font-bold text-outline">Private LAN</p>
               </div>
             </div>
           </div>
           
           <div className="w-full">
             <div className="flex justify-between items-center text-label-sm font-label-sm mb-1 text-on-surface-variant">
-              <span>Link Integrity</span>
+              <span>Link Quality</span>
               <span>{wifiQuality}%</span>
             </div>
             <div className="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
@@ -354,38 +340,36 @@ export function EnvironmentGrid({ telemetry, backendStatus, esp32Status }: Envir
               <Cpu className={`w-5 h-5 ${isDeviceOnline ? "text-primary" : "text-[#f87171]"}`} />
             </div>
             
-            <div className="grid grid-cols-2 gap-md">
+            <div className="grid grid-cols-2 gap-sm mb-sm">
               <div className="space-y-1">
-                <p className="font-label-sm text-on-surface-variant">ESP32 Core</p>
-                <span className={`inline-flex items-center gap-xs font-body-md font-bold ${isDeviceOnline ? "text-[#4ade80]" : "text-[#f87171]"}`}>
-                  {isDeviceOnline ? "🟢 Online" : "🔴 Offline"}
-                </span>
+                <p className="font-label-sm text-on-surface-variant">Device</p>
+                <p className="font-body-md font-bold text-on-background">ESP32 DevKit V1</p>
               </div>
               
               <div className="space-y-1">
                 <p className="font-label-sm text-on-surface-variant">Firmware</p>
-                <p className="font-body-md font-bold text-on-background">v1.0</p>
+                <p className="font-body-md font-bold text-on-background font-mono">v1.0</p>
               </div>
 
               <div className="space-y-1">
-                <p className="font-label-sm text-on-surface-variant">IP Address</p>
-                <p className="font-body-md font-mono font-semibold text-on-background">
-                  {hasTelemetry ? telemetry!.ip_address : "Disconnected"}
-                </p>
+                <p className="font-label-sm text-on-surface-variant">Status</p>
+                <span className={`inline-flex items-center gap-xs font-body-md font-bold ${isDeviceOnline ? "text-[#4ade80]" : "text-[#f87171]"}`}>
+                  {isDeviceOnline ? "🟢 Online" : "🔴 Offline"}
+                </span>
               </div>
 
               <div className="space-y-1">
                 <p className="font-label-sm text-on-surface-variant">Last Seen</p>
                 <p className={`font-body-md font-semibold ${isDeviceOnline ? "text-primary" : "text-[#f87171]"}`}>
-                  {lastSeenText}
+                  {isDeviceOnline ? lastSeenText : `Last seen ${lastSeenText}`}
                 </p>
               </div>
+
+              <div className="space-y-1 col-span-2">
+                <p className="font-label-sm text-on-surface-variant">Monitoring</p>
+                <p className="font-body-md font-bold text-[#4ade80]">Active</p>
+              </div>
             </div>
-          </div>
-          
-          <div className="border-t border-outline-variant/20 pt-md mt-md flex items-center justify-between text-label-sm text-on-surface-variant">
-            <span>SOC Architecture</span>
-            <span className="font-bold text-on-background">Tensilica Xtensa LX6 (ESP32 WROOM)</span>
           </div>
         </GlassCard>
 
